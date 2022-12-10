@@ -40,6 +40,38 @@ class ElfVM(Iterator):
         if self.increment:
             self.register += self.increment
 
+class Screen:
+    def __init__(self, data, width=40, height=6):
+        self.width = width
+        self.crt_loc = [i for i in range(width)]*height
+        self.pixels = ''
+        self.vm = ElfVM(data)
+        self.gen = self.get_gen()
+
+    def __str__(self):
+        return self.pixels
+
+    def __next__(self):
+        self.gen.__next__()
+
+    def get_gen(self):
+        # I broke this out into a generator function to allow easy testing
+        for sprite_loc, current_pixel in zip(self.vm, self.crt_loc):
+            if abs(sprite_loc - current_pixel) <= 1:
+                self.pixels += '#'
+            else:
+                self.pixels += '.'
+            if current_pixel == (self.width - 1):
+                self.pixels += '\n'
+            yield
+
+    def run(self):
+        while True:
+            try:
+                self.__next__()
+            except StopIteration:
+                break
+
 def get_data():
     with open('input', 'r') as f:
         data = f.read().strip().split('\n')
@@ -49,38 +81,16 @@ def get_signal_strength(vm, start, stop, step):
     signal_strength = [i*(v+1) for v, i in enumerate(vm)]
     return sum(signal_strength[slice(start, stop, step)])
 
-
 def get_solution_1(data):
     vm = ElfVM(data)
     return get_signal_strength(vm, 19, 220, 40)
 
-
-def get_solution_2(arr):
-    pass
-
-
-
-# def test_pt_1():
-#     arr = get_test_arr()
-#     assert is_hidden(arr, 1, 1) == False
-#     assert is_hidden(arr, 1, 2) == False
-#     assert is_hidden(arr, 1, 3) == True
-#     assert is_hidden(arr, 2, 1) == False
-#     assert is_hidden(arr, 2, 2) == True
-#     assert is_hidden(arr, 2, 3) == False
-#     assert is_hidden(arr, 3, 1) == True
-#     assert is_hidden(arr, 3, 2) == False
-#     assert is_hidden(arr, 3, 3) == True
-#     assert get_solution_1(arr) == 21
-
-# def test_pt_2():
-#     arr = get_test_arr()
-#     assert scenic_score(arr, 1, 2) == 4
-#     assert scenic_score(arr, 3, 2) == 8
-
+def get_solution_2(data):
+    screen = Screen(data)
+    screen.run()
+    return screen
 
 if __name__ == "__main__":
-    
     solution_data = get_data()
     print('solution 1:', get_solution_1(solution_data))
-    # print('solution 2:', get_solution_2(tree_array))
+    print(f'solution 2:\n{get_solution_2(solution_data)}')
