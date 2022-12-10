@@ -6,7 +6,6 @@ class ElfVM(Iterator):
         # we could use .pop(0), but it's less efficient and that bugs me a bit
         self.data = data[::-1]
         self.register = 1
-        self.clock = 0
         self.increment = None
         self.instruction = ''
         self.execution_time = 0
@@ -15,15 +14,11 @@ class ElfVM(Iterator):
         if self.instruction is None:
             raise StopIteration
         self.clock_cycle()
-        # if not self.clock_cycle():
-            # self.execution_time = -1
-            # return self.register
         return self.register
 
     def clock_cycle(self):
         if self.execution_time > 0:
             self.execution_time -= 1
-            return True
         else:
             self.execute_instruction()
             return self.load_instruction()
@@ -31,32 +26,33 @@ class ElfVM(Iterator):
     def load_instruction(self):
         if not self.data:
             self.instruction = None
-            return False
-        instruction = self.data.pop()
-        self.instruction = instruction
-        if instruction[:4] == 'noop':
+            return
+        self.instruction = self.data.pop()
+        if self.instruction[:4] == 'noop':
             self.execution_time = 0
             self.increment = None
-        elif instruction[:4] == 'addx':
-            argument = instruction.split()[1]
+        elif self.instruction[:4] == 'addx':
+            argument = self.instruction.split()[1]
             self.execution_time = 1
             self.increment = int(argument)
-        return True
 
     def execute_instruction(self):
         if self.increment:
             self.register += self.increment
-
-
 
 def get_data():
     with open('input', 'r') as f:
         data = f.read().strip().split('\n')
     return data
 
+def get_signal_strength(vm, start, stop, step):
+    signal_strength = [i*(v+1) for v, i in enumerate(vm)]
+    return sum(signal_strength[slice(start, stop, step)])
 
-def get_solution_1(arr):
-    pass
+
+def get_solution_1(data):
+    vm = ElfVM(data)
+    return get_signal_strength(vm, 19, 220, 40)
 
 
 def get_solution_2(arr):
@@ -84,10 +80,7 @@ def get_solution_2(arr):
 
 
 if __name__ == "__main__":
-    pass
-    # solution_data = get_data()
-    # tree_array = data_to_array(solution_data)
-    # print('solution 1:', get_solution_1(tree_array))
+    
+    solution_data = get_data()
+    print('solution 1:', get_solution_1(solution_data))
     # print('solution 2:', get_solution_2(tree_array))
-
-    # np.rot90
