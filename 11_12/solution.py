@@ -23,14 +23,85 @@ def get_re():
     return regex
 
 class Monkey:
-    def __init__(self):
-        pass
+    def __init__(self, num, relief=3):
+        self.num = num
+        self.reliev = relief
+        self.items = []
+        self.true_monkey = None
+        self.false_monkey = None
+        self.factor = None
+        self.monkey_around = None
+        self.curiosity = 0
+
+    def __repr__(self):
+        return f'< Monkey: {self.num} items: {self.items} >'
+
+    def set_test_factor(self, test_str):
+        match = re.match(r'divisible by (?P<num>[0-9]+)', test_str)
+        self.factor = int(match.group('num'))
+
+    def set_operation(self, op_str):
+        op_str = op_str.replace('new =', 'lambda old:')
+        self.monkey_around = eval(op_str)
+
+    def inspect(self):
+        if not self.items:
+            return
+        for item in self.items:
+            item = self.monkey_around(item)
+            item = item // self.relief
+            self.throw(item)
+            self.curiosity += 1
+        self.items = []
+
+    def throw(self, item):
+        if item % self.factor == 0:
+            self.true_monkey.catch(item)
+        else:
+            self.false_monkey.catch(item)
+
+    def catch(self, item):
+        self.items.append(item)
+
+class Barrel:
+    def __init__(self, data):
+        self.data = data
+        self.regex = get_re()
+        self.monkeys = []
+        self.get_monkeys()
+
+    def get_monkeys(self, relief):
+        monkey_dicts = [i.groupdict()
+                        for i in re.finditer(self.regex, self.data)]
+        self.monkeys = [Monkey(v, relief) 
+                        for v, monkey in enumerate(monkey_dicts)]
+        for monkey, monkey_dict in zip(self.monkeys, monkey_dicts):
+            monkey.items = [int(i) for i in monkey_dict['items'].split(', ')]
+            true_monkey = self.monkeys[int(monkey_dict['if_true'])]
+            false_monkey = self.monkeys[int(monkey_dict['if_false'])]
+            monkey.true_monkey = true_monkey
+            monkey.false_monkey = false_monkey
+            monkey.set_operation(monkey_dict['operation'])
+            monkey.set_test_factor(monkey_dict['test'])
+
+    def monkey_a_round(self, rounds=1):
+        for i in range(rounds):
+            for monkey in self.monkeys:
+                monkey.inspect()
+
+    def monkey_business(self):
+        curious_monkeys = sorted([monkey.curiosity for monkey in self.monkeys])
+        return curious_monkeys[-2] * curious_monkeys[-1]
 
 def get_solution_1(data):
-    return ''
+    barrel = Barrel(data)
+    barrel.monkey_a_round(20)
+    return barrel.monkey_business()
+    
+    
 
 def get_solution_2(data):
-    return ''
+    return data[:10]
 
 if __name__ == "__main__":
     solution_data = get_data()
