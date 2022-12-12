@@ -1,4 +1,5 @@
 import re
+from collections import deque
 
 def get_data():
     with open('input', 'r') as f:
@@ -25,16 +26,16 @@ def get_re():
 class Monkey:
     def __init__(self, num, relief=3):
         self.num = num
-        self.reliev = relief
-        self.items = []
+        self.relief = relief
+        self.items = deque()
         self.true_monkey = None
         self.false_monkey = None
         self.factor = None
         self.monkey_around = None
         self.curiosity = 0
 
-    def __repr__(self):
-        return f'< Monkey: {self.num} items: {self.items} >'
+    # def __repr__(self):
+    #     return f'< Monkey: {self.num} items: {self.items} >'
 
     def set_test_factor(self, test_str):
         match = re.match(r'divisible by (?P<num>[0-9]+)', test_str)
@@ -44,15 +45,22 @@ class Monkey:
         op_str = op_str.replace('new =', 'lambda old:')
         self.monkey_around = eval(op_str)
 
+
     def inspect(self):
-        if not self.items:
-            return
-        for item in self.items:
-            item = self.monkey_around(item)
-            item = item // self.relief
+        # if not self.items:
+        #     return
+        while self.items:
+            item = self.items.popleft()
+            item = self.monkey_around(item) // self.relief
             self.throw(item)
             self.curiosity += 1
-        self.items = []
+
+        # for item in self.items:
+        #     monkeyed_item = self.monkey_around(item)
+        #     monkeyed_item = monkeyed_item // self.relief
+        #     self.throw(monkeyed_item)
+        #     self.curiosity += 1
+        # self.items = []
 
     def throw(self, item):
         if item % self.factor == 0:
@@ -64,19 +72,19 @@ class Monkey:
         self.items.append(item)
 
 class Barrel:
-    def __init__(self, data):
+    def __init__(self, data, relief=3):
         self.data = data
         self.regex = get_re()
         self.monkeys = []
-        self.get_monkeys()
+        self.get_monkeys(relief)
 
     def get_monkeys(self, relief):
         monkey_dicts = [i.groupdict()
                         for i in re.finditer(self.regex, self.data)]
-        self.monkeys = [Monkey(v, relief) 
+        self.monkeys = [Monkey(v, relief)
                         for v, monkey in enumerate(monkey_dicts)]
         for monkey, monkey_dict in zip(self.monkeys, monkey_dicts):
-            monkey.items = [int(i) for i in monkey_dict['items'].split(', ')]
+            monkey.items = deque([int(i) for i in monkey_dict['items'].split(', ')])
             true_monkey = self.monkeys[int(monkey_dict['if_true'])]
             false_monkey = self.monkeys[int(monkey_dict['if_false'])]
             monkey.true_monkey = true_monkey
@@ -97,8 +105,6 @@ def get_solution_1(data):
     barrel = Barrel(data)
     barrel.monkey_a_round(20)
     return barrel.monkey_business()
-    
-    
 
 def get_solution_2(data):
     return data[:10]
