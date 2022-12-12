@@ -3,7 +3,7 @@ monkey_list = [
         'number':'0',
         'items':'79, 98',
         'operation':'new = old * 19',
-        'test':'divisible by 23',
+        'test':'23',
         'if_true':'2',
         'if_false':'3'
     },
@@ -11,7 +11,7 @@ monkey_list = [
         'number':'1',
         'items':'54, 65, 75, 74',
         'operation':'new = old + 6',
-        'test':'divisible by 19',
+        'test':'19',
         'if_true':'2',
         'if_false':'0'
     },
@@ -19,7 +19,7 @@ monkey_list = [
         'number':'2',
         'items':'79, 60, 97',
         'operation':'new = old * old',
-        'test':'divisible by 13',
+        'test':'13',
         'if_true':'1',
         'if_false':'3'
     },
@@ -27,7 +27,7 @@ monkey_list = [
         'number':'3',
         'items':'74',
         'operation':'new = old + 3',
-        'test':'divisible by 17',
+        'test':'17',
         'if_true':'0',
         'if_false':'1'
     },
@@ -101,5 +101,10 @@ round_results_part_2 = [
      'monkey_0': 46945,
      'monkey_1': 43051,
      'monkey_2': 1746,
-     'monkey_3': 46807}
+     'monkey_3': 46807},
+    {'round' : 10000,
+      'monkey_0': 52166,
+      'monkey_1': 47830,
+      'monkey_2': 1938,
+      'monkey_3': 52013}
 ]

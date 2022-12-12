@@ -2,7 +2,6 @@ import re
 from solution import get_re, Barrel, Monkey
 from monkey_list import monkey_list, round_results, round_results_part_2
 from datetime import datetime
-from collections import deque
 
 def get_test_data():
     with open('test_input.txt', 'r') as f:
@@ -31,7 +30,7 @@ class TestBarrelOfMonkeys:
     def test_basic(self):
         monkey = self.barrel.monkeys[0]
         assert monkey.num == 0
-        assert monkey.items == deque([79, 98])
+        assert monkey.items == [79, 98]
         assert monkey.factor == 23
         assert monkey.true_monkey is self.barrel.monkeys[2]
         assert monkey.false_monkey is self.barrel.monkeys[3]
@@ -41,17 +40,17 @@ class TestBarrelOfMonkeys:
         destination_monkey = self.barrel.monkeys[3]
         monkey.inspect()
         assert monkey.num == 0
-        assert monkey.items == deque()
+        assert monkey.items == []
         assert monkey.factor == 23
-        assert destination_monkey.items == deque([74, 500, 620])
+        assert destination_monkey.items == [74, 500, 620]
         
     def test_round_1(self):
         self.barrel = Barrel(self.data)
         self.barrel.monkey_a_round()
-        assert self.barrel.monkeys[0].items == deque([20, 23, 27, 26])
-        assert self.barrel.monkeys[1].items == deque([2080, 25, 167, 207, 401, 1046])
-        assert self.barrel.monkeys[2].items == deque()
-        assert self.barrel.monkeys[3].items == deque()
+        assert self.barrel.monkeys[0].items == [20, 23, 27, 26]
+        assert self.barrel.monkeys[1].items == [2080, 25, 167, 207, 401, 1046]
+        assert self.barrel.monkeys[2].items == []
+        assert self.barrel.monkeys[3].items == []
 
     def test_round_2(self):
         self.barrel = Barrel(self.data)
@@ -60,7 +59,7 @@ class TestBarrelOfMonkeys:
             if i not in round_results:
                 continue
             for expected, monkey in zip(round_results[i], self.barrel.monkeys):
-                assert monkey.items == deque(expected)
+                assert monkey.items == expected
 
     def test_curiosity(self):
         self.barrel = Barrel(self.data)
@@ -70,9 +69,9 @@ class TestBarrelOfMonkeys:
         assert self.barrel.monkeys[2].curiosity == 7
         assert self.barrel.monkeys[3].curiosity == 105
 
-class skipTestBarrelPt2:
+class TestBarrelPt2:
     data = get_test_data()
-    barrel = Barrel(data, relief=1)
+    barrel = Barrel(data, relief=1, king_kong_mode=True)
 
     def test_serious_monkey_business(self):
         now = datetime.now()
@@ -91,24 +90,24 @@ class skipTestBarrelPt2:
         assert curiosity[-2:] == [52013, 52166]
         assert self.barrel.monkey_business() == 2713310158
 
-def thing(relief=1):
-    regex = get_re()
-    data = get_test_data()
-    monkeys = []
-    monkey_dicts = [i.groupdict()
-                        for i in re.finditer(regex, data)]
-    monkeys = [Monkey(v, relief) 
-                    for v, monkey in enumerate(monkey_dicts)]
-    for monkey, monkey_dict in zip(monkeys, monkey_dicts):
-        monkey.items = [int(i) for i in monkey_dict['items'].split(', ')]
-        true_monkey = monkeys[int(monkey_dict['if_true'])]
-        false_monkey = monkeys[int(monkey_dict['if_false'])]
-        monkey.true_monkey = true_monkey
-        monkey.false_monkey = false_monkey
-        monkey.set_operation(monkey_dict['operation'])
-        monkey.set_test_factor(monkey_dict['test'])
-    return monkeys
+# def thing(relief=1):
+#     regex = get_re()
+#     data = get_test_data()
+#     monkeys = []
+#     monkey_dicts = [i.groupdict()
+#                         for i in re.finditer(regex, data)]
+#     monkeys = [Monkey(v, relief) 
+#                     for v, monkey in enumerate(monkey_dicts)]
+#     for monkey, monkey_dict in zip(monkeys, monkey_dicts):
+#         monkey.items = [int(i) for i in monkey_dict['items'].split(', ')]
+#         true_monkey = monkeys[int(monkey_dict['if_true'])]
+#         false_monkey = monkeys[int(monkey_dict['if_false'])]
+#         monkey.true_monkey = true_monkey
+#         monkey.false_monkey = false_monkey
+#         monkey.set_operation(monkey_dict['operation'])
+#         monkey.set_test_factor(monkey_dict['test'])
+#     return monkeys
 
-if __name__ == "__main__":
-    tb = TestBarrelPt2()
-    tb.test_serious_monkey_business()
+# if __name__ == "__main__":
+#     tb = TestBarrelPt2()
+#     tb.test_serious_monkey_business()
