@@ -1,7 +1,7 @@
 from test.test_inputs import input_1, expected_endpoints, \
     expected_line_points, expected_point_set, expected_sand_progression
 from solution import str_to_endpoints, points_in_line, get_point_set, \
-    get_abyss_level, move_sand, get_solution_1
+    get_abyss_level, move_sand, get_solution_1, get_solution_2
 
 def test_str_to_endpoints():
     for line, expected in zip(input_1.split('\n'), expected_endpoints):
@@ -40,3 +40,6 @@ def test_solution_1():
 
 def test_new_floor_level():
     assert get_abyss_level(expected_point_set) + 2 == 11
+
+def test_solution_2():
+    assert get_solution_2(input_1.split('\n')) == 93

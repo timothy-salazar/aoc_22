@@ -54,7 +54,7 @@ def get_abyss_level(rock_set: set):
     abyssal_y = max(rock_set, key=lambda x: x[1])[1]
     return abyssal_y
 
-def move_sand(blocked_points):
+def move_sand(blocked_points, floor_level=None):
     """ Input:
             blocked_points: set - the set of all points occupied by
                 either rock or units of sand
@@ -70,20 +70,22 @@ def move_sand(blocked_points):
     sand_y = 0
     abyssal_y = get_abyss_level(blocked_points)
     while True:
-        if sand_y > abyssal_y:
+        if floor_level and (sand_y == (floor_level - 1)):
+            break
+        if (not floor_level) and (sand_y > abyssal_y):
             return blocked_points
         if (sand_x, sand_y + 1) not in blocked_points:
             sand_y += 1
-            continue
         elif (sand_x - 1, sand_y + 1) not in blocked_points:
             sand_x, sand_y = sand_x - 1, sand_y + 1
-            continue
         elif (sand_x + 1, sand_y + 1) not in blocked_points:
             sand_x, sand_y = sand_x + 1, sand_y + 1
-            continue
+        elif (sand_x, sand_y) == (500, 0):
+            break
         else:
-            blocked_points.add((sand_x, sand_y))
-            return blocked_points
+            break
+    blocked_points.add((sand_x, sand_y))
+    return blocked_points
 
 def get_solution_1(data):
     last_value = 0
@@ -97,11 +99,13 @@ def get_solution_1(data):
         else:
             last_value = this_value
 
-
 def get_solution_2(data):
     stone_set = get_point_set(data)
+    point_set = stone_set.copy()
     actual_floor_level = get_abyss_level(stone_set) + 2
-    return data[0][0]
+    while not (500, 0) in point_set:
+        move_sand(point_set, actual_floor_level)
+    return len(point_set.difference(stone_set))
 
 if __name__ == "__main__":
     input_data = get_data()
